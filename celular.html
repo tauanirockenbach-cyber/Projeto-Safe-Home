@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mobile - Casa Segura Viewer</title>
+    <style>
+        body { background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; font-family: sans-serif; }
+        .phone { width: 340px; height: 680px; background: #111; border: 10px solid #333; border-radius: 40px; overflow: hidden; position: relative; }
+        header { background: #1e293b; padding: 30px 20px; border-bottom: 2px solid #fbbf24; text-align: center; }
+        .content { padding: 20px; background: #0f172a; height: 100%; }
+        .card { background: #1e293b; padding: 20px; border-radius: 15px; border-left: 5px solid #fbbf24; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        .status-on { color: #4ade80; font-weight: bold; }
+        .status-off { color: #fbbf24; font-weight: bold; }
+        
+        /* Notificação Push */
+        #push { position: absolute; top: -100px; left: 10px; right: 10px; background: #fbbf24; color: #000; padding: 15px; border-radius: 10px; font-weight: bold; transition: 0.5s; z-index: 100; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div id="push">NOTIFICAÇÃO: Porta Principal foi Aberta!</div>
+        <header>
+            <h2 style="font-size: 1.1rem; color: #fbbf24;">CASA SEGURA MOBILE</h2>
+        </header>
+        <div class="content">
+            <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 10px;">DISPOSITIVOS EM TEMPO REAL</p>
+            <div class="card">
+                <div>
+                    <div style="font-size: 0.9rem;">Porta Principal</div>
+                    <div style="font-size: 0.7rem; color: #64748b;">Fechadura Eletrônica</div>
+                </div>
+                <div id="status-txt" class="status-off">Trancada</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Escuta mudanças no banco de dados (mesmo em abas diferentes)
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'comandoPorta') {
+                const dados = JSON.parse(event.newValue);
+                atualizarApp(dados.status);
+            }
+        });
+
+        function atualizarApp(status) {
+            const txt = document.getElementById('status-txt');
+            const push = document.getElementById('push');
+            
+            txt.innerText = status;
+            txt.className = (status === 'Aberta') ? 'status-on' : 'status-off';
+
+            // Mostrar Notificação Push
+            push.innerText = `NOTIFICAÇÃO: A porta foi ${status}!`;
+            push.style.top = "15px";
+            
+            setTimeout(() => {
+                push.style.top = "-100px";
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casa Segura Mobile - Gestão Total</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; }
+
+        .smartphone {
+            width: 360px; height: 740px; background: #111; border: 12px solid #333;
+            border-radius: 40px; position: relative; overflow: hidden; display: flex; flex-direction: column;
+        }
+
+        /* LOGIN */
+        #login-screen { padding: 40px 20px; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100%; }
+        input, select { background: #222; border: 1px solid #444; padding: 12px; color: white; border-radius: 10px; margin-bottom: 10px; width: 100%; outline: none; }
+        .btn { background: #fbbf24; color: #000; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+
+        /* APP CONTENT */
+        #app-content { display: none; height: 100%; flex-direction: column; background: #0f172a; }
+        header { padding: 30px 20px 15px; background: #1e293b; border-bottom: 2px solid #fbbf24; display: flex; justify-content: space-between; align-items: center; }
+        
+        .add-btn { background: #fbbf24; color: #000; border: none; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+
+        .device-list { flex: 1; padding: 20px; overflow-y: auto; }
+        .section-title { font-size: 0.7rem; color: #fbbf24; margin: 15px 0 10px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+
+        .device-card { background: #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
+        .device-name { font-size: 0.85rem; font-weight: bold; }
+        .device-room { font-size: 0.7rem; color: #94a3b8; }
+        
+        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: bold; }
+        .st-on { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .st-off { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+        /* MODAL CADASTRO */
+        #modal-cadastro {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); padding: 40px 20px; z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="smartphone">
+        <div id="login-screen">
+            <h1 style="color:#fbbf24; margin-bottom:5px;">🛡️ CASA SEGURA</h1>
+            <p style="font-size:0.7rem; color:#666; margin-bottom:30px;">MOBILE VIEWER</p>
+            <input type="text" id="user" placeholder="Admin">
+            <input type="password" id="pass" placeholder="Senha">
+            <button class="btn" onclick="entrarApp()">ENTRAR NO PAINEL</button>
+        </div>
+
+        <div id="app-content">
+            <header>
+                <div>
+                    <h2 style="font-size:1rem;">Monitoramento</h2>
+                    <span style="font-size:0.6rem; color:#4ade80;">● ONLINE</span>
+                </div>
+                <button class="add-btn" onclick="abrirModal()">+</button>
+            </header>
+
+            <div class="device-list" id="lista-dispositivos">
+                </div>
+
+            <footer style="padding:10px; text-align:center; font-size:0.6rem; color:#444;">
+                Cibersistemas v3.0 - Visualização Protegida
+            </footer>
+        </div>
+
+        <div id="modal-cadastro">
+            <h2 style="color:#fbbf24; margin-bottom:20px;">Novo Dispositivo</h2>
+            <label style="font-size:0.7rem; color:#94a3b8;">NOME DO APARELHO</label>
+            <input type="text" id="new-name" placeholder="Ex: Câmera Garagem">
+            
+            <label style="font-size:0.7rem; color:#94a3b8;">AMBIENTE</label>
+            <input type="text" id="new-room" placeholder="Ex: Cozinha">
+            
+            <label style="font-size:0.7rem; color:#94a3b8;">STATUS ATUAL</label>
+            <select id="new-status">
+                <option value="st-on">LIGADO / ATIVO</option>
+                <option value="st-off">DESLIGADO / INATIVO</option>
+            </select>
+            
+            <button class="btn" style="margin-top:20px;" onclick="salvarDispositivo()">ADICIONAR</button>
+            <button class="btn" style="background:#444; color:white; margin-top:10px;" onclick="fecharModal()">CANCELAR</button>
+        </div>
+    </div>
+
+    <script>
+        // Banco de dados inicial
+        let dispositivos = JSON.parse(localStorage.getItem('appDispositivos')) || [
+            {nome: "Alexa Echo Dot", local: "Sala", status: "st-on", statusTxt: "Online"},
+            {nome: "Fechadura", local: "Entrada", status: "st-on", statusTxt: "Trancada"},
+            {nome: "Luzes Teto", local: "Quarto", status: "st-off", statusTxt: "Apagada"}
+        ];
+
+        function entrarApp() {
+            if(document.getElementById('user').value === 'admin' && document.getElementById('pass').value === '123') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'flex';
+                renderizarDispositivos();
+            } else { alert("Acesso Negado!"); }
+        }
+
+        function abrirModal() { document.getElementById('modal-cadastro').style.display = 'block'; }
+        function fecharModal() { document.getElementById('modal-cadastro').style.display = 'none'; }
+
+        function salvarDispositivo() {
+            const nome = document.getElementById('new-name').value;
+            const local = document.getElementById('new-room').value;
+            const status = document.getElementById('new-status').value;
+            const statusTxt = status === 'st-on' ? 'ATIVO' : 'OFFLINE';
+
+            if(!nome || !local) { alert("Preencha todos os campos!"); return; }
+
+            dispositivos.push({nome, local, status, statusTxt});
+            localStorage.setItem('appDispositivos', JSON.stringify(dispositivos));
+            
+            document.getElementById('new-name').value = '';
+            document.getElementById('new-room').value = '';
+            
+            fecharModal();
+            renderizarDispositivos();
+        }
+
+        function renderizarDispositivos() {
+            const lista = document.getElementById('lista-dispositivos');
+            lista.innerHTML = '<div class="section-title">Meus Dispositivos</div>';
+            
+            dispositivos.forEach(d => {
+                lista.innerHTML += `
+                    <div class="device-card">
+                        <div>
+                            <div class="device-name">${d.nome}</div>
+                            <div class="device-room">${d.local}</div>
+                        </div>
+                        <span class="status-pill ${d.status}">${d.statusTxt}</span>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
