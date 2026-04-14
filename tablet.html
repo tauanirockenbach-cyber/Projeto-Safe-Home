@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casa Segura OS - Sistema Inviolável</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; height: 100vh; display: flex; justify-content: center; align-items: center; }
+
+        /* LOGIN */
+        #login-screen { background: #1e293b; padding: 40px; border-radius: 20px; text-align: center; width: 350px; border: 2px solid #fbbf24; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; outline: none; }
+        
+        /* INTERFACE */
+        #app-interface { display: none; width: 1200px; height: 750px; background: #1e293b; border: 10px solid #000; border-radius: 40px; overflow: hidden; }
+        nav { width: 230px; background: #0f172a; padding: 25px 15px; display: flex; flex-direction: column; }
+        .menu-item { padding: 12px; border-radius: 10px; cursor: pointer; color: #94a3b8; margin-bottom: 5px; font-size: 0.85rem; }
+        .menu-item.active { background: #fbbf24; color: #000; font-weight: bold; }
+
+        main { flex: 1; padding: 30px; overflow-y: auto; display: none; }
+        main.active { display: block; }
+
+        .form-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #334155; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .form-group label { font-size: 0.75rem; color: #fbbf24; text-transform: uppercase; }
+        
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: #0f172a; padding: 20px; border-radius: 15px; border-left: 5px solid #fbbf24; position: relative; }
+        
+        .btn { background: #fbbf24; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-save { background: #27ae60; color: white; width: 100%; grid-column: span 2; }
+
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
+        .ok { background: #064e3b; color: #4ade80; }
+        .aviso { background: #7f1d1d; color: #fca5a5; }
+
+        /* CONSOLE HACKER */
+        .console { background: #000; color: #4ade80; padding: 15px; font-family: 'Courier New', monospace; border-radius: 10px; height: 450px; overflow-y: auto; font-size: 0.85rem; border: 1px solid #334155; }
+        .hacker-msg { color: #ef4444; font-weight: bold; }
+        .block-msg { color: #fbbf24; font-weight: bold; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <h2 style="color: #fbbf24; margin-bottom: 10px;">🛡️ SAFE HOME</h2>
+        <input type="text" id="user" placeholder="Usuário">
+        <input type="password" id="pass" placeholder="Senha">
+        <button class="btn" style="width: 100%;" onclick="login()">ENTRAR</button>
+    </div>
+
+    <div id="app-interface">
+        <div style="display: flex; height: 100%;">
+            <nav>
+                <div style="color: #fbbf24; font-weight: bold; margin-bottom: 30px; text-align: center;">LOGÍSTICA</div>
+                <div class="menu-item active" onclick="showTab('home', this)">📡 Monitoramento</div>
+                <div class="menu-item" onclick="showTab('cadastro', this)">➕ Novo Cadastro</div>
+                <div class="menu-item" onclick="showTab('uso', this)">⚙️ Status de Uso</div>
+                <div class="menu-item" onclick="showTab('ciber', this)">🤖 Defesa AI</div>
+                <button class="btn" style="margin-top: auto; background: #475569; color: white;" onclick="location.reload()">Sair</button>
+            </nav>
+
+            <main id="home" class="active">
+                <h1>Hubs Ativos</h1>
+                <div class="grid-cards" id="grid-monitor"></div>
+            </main>
+
+            <main id="cadastro">
+                <h1>Cadastrar Morador</h1>
+                <div class="form-group">
+                    <div><label>Nome Completo</label><input type="text" id="cad-nome"></div>
+                    <div><label>CPF</label><input type="text" id="cad-cpf" maxlength="14"></div>
+                    <div><label>Funcionalidade</label>
+                        <select id="cad-func">
+                            <option value="Fechadura Eletrônica">Fechadura Eletrônica</option>
+                            <option value="Cerca Elétrica">Cerca Elétrica</option>
+                            <option value="Câmeras IP">Câmeras IP</option>
+                        </select>
+                    </div>
+                    <div><label>Idade (18-110)</label><input type="number" id="cad-idade"></div>
+                    <div><label>Última Manutenção</label><input type="text" id="cad-visita" maxlength="10" placeholder="DD/MM/AAAA"></div>
+                    <div><label>Nascimento</label><input type="text" id="cad-nasc" maxlength="10" placeholder="DD/MM/AAAA"></div>
+                    <div style="grid-column: span 2;"><label>Endereço</label><input type="text" id="cad-end"></div>
+                    <button class="btn btn-save" onclick="salvarPessoa()">SALVAR NO BANCO DE DADOS</button>
+                </div>
+            </main>
+
+            <main id="uso">
+                <h1>Status de Manutenção</h1>
+                <div id="lista-uso"></div>
+            </main>
+
+            <main id="ciber">
+                <h1>Defesa de Rede em Tempo Real</h1>
+                <div class="console" id="console-log">
+                    [SISTEMA]: Inicializando Protocolos de Defesa...<br>
+                    [SISTEMA]: Firewall Nível 10 Ativo.<br>
+                </div>
+            </main>
+        </div>
+    </div>
+
+<script>
+    let pessoas = JSON.parse(localStorage.getItem('casaSeguraDB')) || [];
+
+    function login() {
+        if(document.getElementById('user').value === 'tau' && document.getElementById('pass').value === 'tau') {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-interface').style.display = 'block';
+            renderizar();
+            iniciarDefesaIA();
+        } else { alert("Acesso Negado!"); }
+    }
+
+    function showTab(id, el) {
+        document.querySelectorAll('main').forEach(m => m.classList.remove('active'));
+        document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+    }
+
+    const mascara = (id, f) => document.getElementById(id).addEventListener('input', (e) => e.target.value = f(e.target.value));
+    const mCPF = v => v.replace(/\D/g,"").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+    const mData = v => v.replace(/\D/g,"").replace(/(\d{2})(\d)/,"$1/$2").replace(/(\d{2})(\d)/,"$1/$2");
+    mascara('cad-cpf', mCPF); mascara('cad-nasc', mData); mascara('cad-visita', mData);
+
+    function verificarManutencao(dataString) {
+        if(!dataString || dataString.length < 10) return "INCOMPLETO";
+        const partes = dataString.split('/');
+        const dataVisita = new Date(partes[2], partes[1] - 1, partes[0]);
+        const hoje = new Date();
+        const meses = (hoje.getFullYear() - dataVisita.getFullYear()) * 12 + (hoje.getMonth() - dataVisita.getMonth());
+        return meses >= 6 ? "NECESSITA MANUTENÇÃO" : "SISTEMA OK";
+    }
+
+    function salvarPessoa() {
+        const idade = parseInt(document.getElementById('cad-idade').value);
+        const nascimentoStr = document.getElementById('cad-nasc').value;
+        const hoje = new Date();
+
+        if (nascimentoStr.length === 10) {
+            const partes = nascimentoStr.split('/');
+            const dataNascimento = new Date(partes[2], partes[1] - 1, partes[0]);
+            if (dataNascimento > hoje) { alert("Data de nascimento inválida!"); return; }
+        }
+
+        if(idade < 18 || idade > 110) { alert("Idade fora da faixa permitida!"); return; }
+
+        const p = {
+            id: Date.now(),
+            nome: document.getElementById('cad-nome').value,
+            cpf: document.getElementById('cad-cpf').value,
+            func: document.getElementById('cad-func').value,
+            visita: document.getElementById('cad-visita').value,
+            nasc: nascimentoStr,
+            idade: idade,
+            end: document.getElementById('cad-end').value
+        };
+
+        if(!p.nome || p.visita.length < 10) { alert("Dados obrigatórios faltando!"); return; }
+
+        pessoas.push(p);
+        localStorage.setItem('casaSeguraDB', JSON.stringify(pessoas));
+        limparCampos();
+        renderizar();
+    }
+
+    function limparCampos() {
+        ['cad-nome', 'cad-cpf', 'cad-nasc', 'cad-idade', 'cad-visita', 'cad-end'].forEach(id => document.getElementById(id).value = '');
+    }
+
+    function renderizar() {
+        const gridMon = document.getElementById('grid-monitor');
+        const listaUso = document.getElementById('lista-uso');
+        gridMon.innerHTML = ''; listaUso.innerHTML = '';
+
+        pessoas.forEach(p => {
+            const status = verificarManutencao(p.visita);
+            gridMon.innerHTML += `<div class="card"><h3>${p.nome}</h3><p>${p.func}</p></div>`;
+            listaUso.innerHTML += `
+                <div style="background:#0f172a; padding:20px; border-radius:15px; margin-bottom:15px; border-left:6px solid #fbbf24; display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>${p.nome}</b> usa <b>${p.func}</b>.</div>
+                    <span class="status-badge ${status === 'SISTEMA OK' ? 'ok' : 'aviso'}">${status}</span>
+                </div>`;
+        });
+    }
+
+    function iniciarDefesaIA() {
+        const log = document.getElementById('console-log');
+        const ipsHacker = ["192.168.45.21", "200.155.0.8", "10.0.0.54"];
+        
+        setInterval(() => {
+            const acao = Math.random();
+            if(acao > 0.7) {
+                const ip = ipsHacker[Math.floor(Math.random() * ipsHacker.length)];
+                log.innerHTML += `<span class="hacker-msg">[ALERTA]: Tentativa de intrusão detectada vinda de ${ip}!</span><br>`;
+                setTimeout(() => {
+                    log.innerHTML += `<span class="block-msg">[DEFESA]: Hacker bloqueado com sucesso. IP ${ip} banido da rede.</span><br>`;
+                    log.scrollTop = log.scrollHeight;
+                }, 1500);
+            } else {
+                log.innerHTML += `> Analisando pacotes de dados... Rede Segura.<br>`;
+            }
+            log.scrollTop = log.scrollHeight;
+        }, 4000);
+    }
+</script>
+</body>
+</html>
