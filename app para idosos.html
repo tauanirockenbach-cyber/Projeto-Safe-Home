@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casa Segura - Residencial Pro</title>
+    <style>
+        :root {
+            --primaria: #fbbf24;
+            --fundo-card: #ffffff;
+            --texto-principal: #0f172a;
+            --sucesso: #10b981;
+            --alerta: #f59e0b;
+            --perigo: #ef4444;
+            --azul-escuro: #1e293b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        
+        body { background-color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+        .celular-container {
+            width: 380px; height: 800px; background: #f8fafc; border: 12px solid #1e293b;
+            border-radius: 55px; overflow: hidden; position: relative;
+            box-shadow: 0 40px 80px -15px rgba(0,0,0,0.3); display: flex; flex-direction: column;
+        }
+
+        /* Topo Decorativo */
+        .sensor-topo { height: 25px; background: #1e293b; width: 150px; margin: 0 auto; border-radius: 0 0 20px 20px; }
+
+        header { padding: 30px 25px; background: white; }
+        header h1 { font-size: 1.6rem; color: var(--texto-principal); font-weight: 800; }
+        header p { color: #64748b; font-size: 0.9rem; margin-top: 5px; }
+
+        .scroll-area { flex: 1; padding: 0 20px 20px; overflow-y: auto; }
+
+        /* Dashboard de Status */
+        .dashboard-home {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 28px; padding: 25px; margin-bottom: 25px; color: white;
+            box-shadow: 0 10px 20px rgba(30, 41, 59, 0.2);
+        }
+
+        /* Grid de Funções */
+        .grid-residencia { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        .card-home {
+            background: var(--fundo-card); border-radius: 22px; padding: 20px;
+            display: flex; flex-direction: column; border: 1px solid #e2e8f0; transition: 0.2s;
+        }
+        .card-home:active { transform: scale(0.95); background: #fffbeb; }
+
+        .icon-circulo {
+            width: 50px; height: 50px; border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 12px;
+        }
+
+        .card-home h3 { font-size: 1rem; color: var(--texto-principal); margin-bottom: 4px; }
+        .card-home span { font-size: 0.8rem; font-weight: 600; }
+
+        .txt-seguro { color: var(--sucesso); }
+
+        /* Painel Inferior */
+        .painel-inferior { padding: 20px; background: white; border-top: 1px solid #e2e8f0; }
+        
+        .btn-ligar {
+            background: var(--primaria); color: #000; width: 100%; padding: 18px;
+            border-radius: 20px; border: none; font-weight: 800; font-size: 1rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+
+        /* TELA DE CHAMADA ATIVA */
+        #tela-chamada {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--azul-escuro); color: white; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 5000;
+        }
+        .contato-foto { width: 120px; height: 120px; background: var(--primaria); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem; margin-bottom: 20px; border: 4px solid white; }
+        .btn-encerrar { background: var(--perigo); color: white; padding: 15px 40px; border-radius: 30px; border: none; font-weight: bold; margin-top: 40px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="celular-container">
+        <div id="tela-chamada">
+            <div class="contato-foto">👨‍🔧</div>
+            <h2 style="font-size: 1.5rem;">Técnico Marcos</h2>
+            <p id="call-timer" style="color: var(--primaria); margin-top: 10px;">Chamando...</p>
+            <button class="btn-encerrar" onclick="encerrarLigacao()">ENCERRAR</button>
+        </div>
+
+        <div class="sensor-topo"></div>
+
+        <header>
+            <h1>Minha Residência</h1>
+            <p>Monitoramento Casa Segura</p>
+        </header>
+
+        <div class="scroll-area">
+            <div class="dashboard-home">
+                <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 5px;">Status Geral</div>
+                <div style="font-size: 1.5rem; font-weight: bold;">Proteção Ativa</div>
+                <div style="margin-top: 10px; font-size: 0.8rem;">● Todos os sensores operacionais</div>
+            </div>
+
+            <div class="grid-residencia">
+                <div class="card-home">
+                    <div class="icon-circulo" style="background: #ecfdf5;">🚗</div>
+                    <h3>Portão</h3>
+                    <span class="txt-seguro">FECHADO</span>
+                </div>
+
+                <div class="card-home">
+                    <div class="icon-circulo" style="background: #fff7ed;">🔐</div>
+                    <h3>Portas</h3>
+                    <span class="txt-seguro">TRANCADAS</span>
+                </div>
+
+                <div class="card-home">
+                    <div class="icon-circulo" style="background: #eff6ff;">🎥</div>
+                    <h3>Câmeras</h3>
+                    <span class="txt-seguro">ONLINE</span>
+                </div>
+
+                <div class="card-home">
+                    <div class="icon-circulo" style="background: #fef2f2;">⚡</div>
+                    <h3>Cerca</h3>
+                    <span class="txt-seguro">ATIVA</span>
+                </div>
+            </div>
+
+            <div class="card-home" style="width: 100%; margin-top: 15px; flex-direction: row; gap: 20px; align-items: center;">
+                <div class="icon-circulo" style="background: #f1f5f9; margin-bottom: 0;">🛠️</div>
+                <div>
+                    <h3 style="font-size: 0.9rem;">Manutenção</h3>
+                    <p style="font-size: 0.8rem; color: #64748b;">Sistema atualizado</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="painel-inferior">
+            <button class="btn-ligar" onclick="iniciarLigacao()">
+                📞 LIGAR PARA O TÉCNICO
+            </button>
+        </div>
+    </div>
+
+<script>
+    let timerInterval;
+
+    function iniciarLigacao() {
+        // Confirmação para evitar toques acidentais
+        if(confirm("Deseja iniciar uma chamada de voz com o Técnico Marcos?")) {
+            document.getElementById('tela-chamada').style.display = 'flex';
+            let segundos = 0;
+            
+            // Simulação de tempo de chamada
+            timerInterval = setInterval(() => {
+                segundos++;
+                let min = Math.floor(segundos / 60);
+                let seg = segundos % 60;
+                document.getElementById('call-timer').innerText = 
+                    (min < 10 ? "0"+min : min) + ":" + (seg < 10 ? "0"+seg : seg);
+                document.getElementById('call-timer').style.color = "#4ade80";
+            }, 1000);
+        }
+    }
+
+    function encerrarLigacao() {
+        clearInterval(timerInterval);
+        document.getElementById('tela-chamada').style.display = 'none';
+        document.getElementById('call-timer').innerText = "Chamando...";
+        document.getElementById('call-timer').style.color = "#fbbf24";
+    }
+</script>
+</body>
+</html>
